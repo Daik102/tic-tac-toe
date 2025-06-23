@@ -1,1 +1,1 @@
-# tic-tac-toe
+This is the Tic Tac Toe project for the Odin Project.
