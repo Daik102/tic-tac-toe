@@ -164,6 +164,7 @@ function ScreenController(playerOneName, playerTwoName) {
     const selectedColumn = e.target.dataset.column;
     
     if (!selectedColumn) return;
+    if (finished) return;
   
     const result = game.playRound(selectedRow, selectedColumn);
 
@@ -181,6 +182,7 @@ function ScreenController(playerOneName, playerTwoName) {
       playerTurnDiv.textContent = 'Draw';
     }
     if (result !== undefined) {
+      finished = true;
       setTimeout(() => {
         scoreDiv.innerHTML = `<span>${playerOneName}</span> ${playerOneScore} - ${playerTwoScore} <span>${playerTwoName}</span>`;
         dialogResult.showModal();
@@ -189,7 +191,8 @@ function ScreenController(playerOneName, playerTwoName) {
   }
   boardDiv.addEventListener('click', clickHandlerBoard);
 
-  function reloadPage() {
+  function reloadPage(e) {
+    e.preventDefault();
     location.reload();
   }
   quitBtn.addEventListener('click', reloadPage);
@@ -197,6 +200,7 @@ function ScreenController(playerOneName, playerTwoName) {
   function restartGame(e) {
     playerOneWon.style.visibility = 'hidden';
     playerTwoWon.style.visibility = 'hidden';
+    finished = false;
     
     const board = game.getBoard();
     e.preventDefault();
@@ -214,17 +218,70 @@ function ScreenController(playerOneName, playerTwoName) {
 }
 
 function startHumanMode() {
+  const playerTurnDiv = document.querySelector('.turn');
   const boardDiv = document.querySelector('.board');
   const modeBtnContainer = document.querySelector('.mode-btn-container');
-  const playerOneName = prompt('What\'s player one\'s name?');
-  const playerTwoName = prompt('What\'s player two\'s name?');
+  const dialogHuman = document.querySelector('.dialog-human');
+  const backBtn = document.querySelector('.back-btn');
+  const startBtn = document.querySelector('.start-btn');
 
+  playerTurnDiv.style.visibility = 'hidden';
   modeBtnContainer.style.display= 'none';
   boardDiv.style.display = 'grid';
 
-  ScreenController(playerOneName, playerTwoName);
+  dialogHuman.showModal();
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      startGame(e);
+    }
+  });
+
+  function reloadPage(e) {
+    e.preventDefault();
+    location.reload();
+  }
+  backBtn.addEventListener('click', reloadPage);
+
+  function startGame(e) {
+    e.preventDefault();
+
+    const playerOneName = document.getElementById('player-one-name').value;
+    const playerTwoName = document.getElementById('player-two-name').value;
+    const blankAlertOne = document.querySelector('.blank-alert-one');
+    const blankAlertTwo = document.querySelector('.blank-alert-two');
+    const duplicateAlert = document.querySelector('.duplicate-alert');
+
+    if (!playerOneName) {
+      blankAlertTwo.classList.remove('on-alert');
+      duplicateAlert.classList.remove('on-alert');
+      blankAlertOne.classList.add('on-alert');
+      return;
+    } else if (playerTwoName === '') {
+      blankAlertOne.classList.remove('on-alert');
+      duplicateAlert.classList.remove('on-alert');
+      blankAlertTwo.classList.add('on-alert');
+      return;
+    }
+
+    if (playerOneName === playerTwoName) {
+      blankAlertOne.classList.remove('on-alert');
+      blankAlertTwo.classList.remove('on-alert');
+      duplicateAlert.classList.add('on-alert');
+      return;
+    }
+    
+    dialogHuman.close();
+    playerTurnDiv.style.visibility = 'visible';
+    ScreenController(playerOneName, playerTwoName);
+  }
+
+  startBtn.addEventListener('click', startGame);
 }
 
 const humanBtn = document.querySelector('.human-btn');
-const computerBtn = document.querySelector('.computer-btn');
+const robotBtn = document.querySelector('.robot-btn');
+let finished;
+
 humanBtn.addEventListener('click', startHumanMode);
