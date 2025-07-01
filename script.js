@@ -22,49 +22,9 @@ function gameBoard() {
     board[row][column].addValue(player);
   };
 
-  const returnResult = () => {
-    const boardValues = board.map((row) => row.map((cell) => cell.getValue()));
-    
-    if (boardValues[0][2] === 1 && boardValues[1][1] === 1 && boardValues[2][0] === 1 || boardValues[0][0] === 1 && boardValues[1][1] === 1 && boardValues[2][2] === 1) {
-      return 1;
-    } else if (boardValues[0][2] === 2 && boardValues[1][1] === 2 && boardValues[2][0] === 2 || boardValues[0][0] === 2 && boardValues[1][1] === 2 && boardValues[2][2] === 2) {
-      return 2;
-    }
+  const getBoardValues = () => board.map((row) => row.map((cell) => cell.getValue()));
 
-    let occupiedCounter = 0;
-
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < columns; j++) {
-        const win = boardValues[i].every((val, i, arr) => val === arr[0]);
-        if (win && boardValues[i][j] === 1) {
-          return 1;
-        } else if (win && boardValues[i][j] === 2) {
-          return 2;
-        }
-
-        if (boardValues[i][j] !== 0) {
-          occupiedCounter++;
-        }
-      }
-
-      const column = [boardValues[0][i], boardValues[1][i], boardValues[2][i]];
-      const win = column.every((val, i, arr) => val === arr[0]);
-
-      if (win) {
-        if (column[i] === 1) {
-          return 1;
-        } else if (column[i] === 2) {
-          return 2;
-        }
-      }
-    }
-
-    if (occupiedCounter === 9) {
-      return 0;
-    }
-  };
-
-  return {getBoard, putSymbol, returnResult};
+  return {getBoard, putSymbol, getBoardValues};
 }
 
 function Cell() {
@@ -87,12 +47,13 @@ function GameController(playerOneName, playerTwoName) {
   let activePlayer = players[0];
 
   const switchPlayerTurn = (result) => {
-    if (result !== undefined) {
+    if (result >= 0) {
       activePlayer = players[0];
     } else {
       activePlayer = activePlayer === players[0] ? players[1] : players[0];
     }
   };
+  
   const getActivePlayer = () => activePlayer;
 
   const playRound = (row, column) => {
@@ -100,21 +61,61 @@ function GameController(playerOneName, playerTwoName) {
       return;
     }
 
-    const occupiedCell = board.putSymbol(row, column, getActivePlayer().symbol);
-    if (occupiedCell) {
-      return;
+    if (activePlayer.name !== 'Robot') {
+      const occupiedCell = board.putSymbol(row, column, getActivePlayer().symbol);
+      if (occupiedCell) {
+        return;
+      }
     }
 
-    const result = board.returnResult();
-    if (result !== undefined) {
-      switchPlayerTurn(result);
-      return result;
+    const boardValues = board.getBoardValues();
+    let result;
+
+    if (boardValues[0][2] === 1 && boardValues[1][1] === 1 && boardValues[2][0] === 1 || boardValues[0][0] === 1 && boardValues[1][1] === 1 && boardValues[2][2] === 1) {
+      result = 1;
+    } else if (boardValues[0][2] === 2 && boardValues[1][1] === 2 && boardValues[2][0] === 2 || boardValues[0][0] === 2 && boardValues[1][1] === 2 && boardValues[2][2] === 2) {
+      result = 2;
     }
-    
-    switchPlayerTurn();
+
+    let occupiedCounter = 0;
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const win = boardValues[i].every((val, i, arr) => val === arr[0]);
+        if (win && boardValues[i][j] === 1) {
+          result = 1;
+        } else if (win && boardValues[i][j] === 2) {
+          result = 2;
+        }
+
+        if (boardValues[i][j] !== 0) {
+          occupiedCounter++;
+        }
+      }
+
+      const column = [boardValues[0][i], boardValues[1][i], boardValues[2][i]];
+      const win = column.every((val, i, arr) => val === arr[0]);
+
+      if (win) {
+        if (column[i] === 1) {
+          result = 1;
+        } else if (column[i] === 2) {
+          result = 2;
+        }
+      }
+    }
+
+    if (occupiedCounter === 9 && result === undefined) {
+      result = 0;
+    }
+
+    switchPlayerTurn(result);
+    return result;
   };
 
-  return {playRound, getActivePlayer, getBoard: board.getBoard};
+  const getOccupiedCell = (row, column) => board.putSymbol(row, column, getActivePlayer().symbol);
+
+  return {playRound, getActivePlayer, getBoard: board.getBoard, getOccupiedCell};
 }
 
 function ScreenController(playerOneName, playerTwoName) {
@@ -138,12 +139,12 @@ function ScreenController(playerOneName, playerTwoName) {
     
     playerTurnDiv.textContent = `${activePlayer.name}'s turn`;
 
-    board.forEach((row, indexRow) => {
-      row.forEach((cell, indexColumn) => {
+    board.forEach((row, rowIndex) => {
+      row.forEach((cell, columnIndex) => {
         const cellBtn = document.createElement('button');
         cellBtn.classList.add('cell');
-        cellBtn.dataset.row = indexRow;
-        cellBtn.dataset.column = indexColumn;
+        cellBtn.dataset.row = rowIndex;
+        cellBtn.dataset.column = columnIndex;
 
         if (cell.getValue() === 1) {
           cellBtn.innerHTML = '&#10799;';
@@ -159,15 +160,134 @@ function ScreenController(playerOneName, playerTwoName) {
     })
   };
 
-  function clickHandlerBoard(e) {
+  const getHumanMove = (e) => {
     const selectedRow = e.target.dataset.row;
     const selectedColumn = e.target.dataset.column;
     
     if (!selectedColumn) return;
     if (finished) return;
-  
-    const result = game.playRound(selectedRow, selectedColumn);
 
+    actionHandlerBoard(selectedRow, selectedColumn);
+  }
+  boardDiv.addEventListener('click', getHumanMove);
+
+  const getRobotMove = () => {
+    let counter = 0;
+    let robotRow;
+    let robotColumn;
+
+    setTimeout(() => {
+      finished = false;
+
+      if (counter === 0) {
+        robotRow = '0';
+        robotColumn = '0';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 1) {
+        robotRow = '0';
+        robotColumn = '2';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 2) {
+        robotRow = '0';
+        robotColumn = '1';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 3) {
+        robotRow = '2';
+        robotColumn = '0';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 4) {
+        robotRow = '1';
+        robotColumn = '1';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 5) {
+        robotRow = '1';
+        robotColumn = '0';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 6) {
+        robotRow = '2';
+        robotColumn = '2';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 7) {
+        robotRow = '1';
+        robotColumn = '2';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+      if (counter === 8) {
+        robotRow = '2';
+        robotColumn = '1';
+        const occupiedCell = game.getOccupiedCell(robotRow, robotColumn);
+        if (occupiedCell) {
+          counter++
+        } else {
+          actionHandlerBoard(robotRow, robotColumn);
+          return;
+        }
+      }
+    }, 1000);
+  }
+
+  const activePlayer = game.getActivePlayer();
+  if (activePlayer.name === 'Robot') {
+    getRobotMove();
+  }
+
+  const actionHandlerBoard = (row, column) => {
+    const result = game.playRound(row, column);
     updateScreen();
 
     if (result === 1) {
@@ -181,29 +301,35 @@ function ScreenController(playerOneName, playerTwoName) {
     } else if (result === 0) {
       playerTurnDiv.textContent = 'Draw';
     }
-    if (result !== undefined) {
+
+    const activePlayer = game.getActivePlayer();
+
+    if (result >= 0) {
       finished = true;
       setTimeout(() => {
         scoreDiv.innerHTML = `<span>${playerOneName}</span> ${playerOneScore} - ${playerTwoScore} <span>${playerTwoName}</span>`;
         dialogResult.showModal();
       }, 1500);
+    } else if (activePlayer.name === 'Robot') {
+      finished = true;
+      getRobotMove();
     }
   }
-  boardDiv.addEventListener('click', clickHandlerBoard);
 
-  function reloadPage(e) {
+  const reloadPage = (e) => {
     e.preventDefault();
     location.reload();
   }
   quitBtn.addEventListener('click', reloadPage);
 
-  function restartGame(e) {
+  const restartGame = (e) => {
+    e.preventDefault();
     playerOneWon.style.visibility = 'hidden';
     playerTwoWon.style.visibility = 'hidden';
     finished = false;
     
     const board = game.getBoard();
-    e.preventDefault();
+    
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         board[i][j].resetValue();
@@ -211,77 +337,103 @@ function ScreenController(playerOneName, playerTwoName) {
     }
     dialogResult.close();
     updateScreen();
+
+    const activePlayer = game.getActivePlayer();
+    if (activePlayer.name === 'Robot') {
+      getRobotMove();
+    }
   }
   playAgainBtn.addEventListener('click', restartGame);
 
   updateScreen();
 }
 
-function startHumanMode() {
-  const playerTurnDiv = document.querySelector('.turn');
+function enterName(e) {
   const boardDiv = document.querySelector('.board');
   const modeBtnContainer = document.querySelector('.mode-btn-container');
   const dialogHuman = document.querySelector('.dialog-human');
+  const dialogRobot = document.querySelector('.dialog-robot');
   const backBtn = document.querySelector('.back-btn');
   const startBtn = document.querySelector('.start-btn');
+  const backBtnRobot = document.querySelector('.back-btn-robot');
+  const playBtn = document.querySelector('.play-btn');
 
-  playerTurnDiv.style.visibility = 'hidden';
   modeBtnContainer.style.display= 'none';
   boardDiv.style.display = 'grid';
 
-  dialogHuman.showModal();
+  if (e.target.className === 'human-btn') {
+    dialogHuman.showModal();
+  } else if (e.target.className === 'robot-btn') {
+    dialogRobot.showModal();
+  }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      startGame(e);
-    }
-  });
-
-  function reloadPage(e) {
+  const reloadPage = (e) => {
     e.preventDefault();
     location.reload();
   }
   backBtn.addEventListener('click', reloadPage);
+  backBtnRobot.addEventListener('click', reloadPage);
 
-  function startGame(e) {
+  const startGame = (e) => {
     e.preventDefault();
-
+    
     const playerOneName = document.getElementById('player-one-name').value;
     const playerTwoName = document.getElementById('player-two-name').value;
+    const playerName = document.getElementById('player-name').value;
     const blankAlertOne = document.querySelector('.blank-alert-one');
     const blankAlertTwo = document.querySelector('.blank-alert-two');
     const duplicateAlert = document.querySelector('.duplicate-alert');
+    const blankAlertName = document.querySelector('.blank-alert-name');
+    const playerFirst = document.getElementById('player-first');
+    const humanAlert = document.querySelector('.human-alert');
 
-    if (!playerOneName) {
-      blankAlertTwo.classList.remove('on-alert');
-      duplicateAlert.classList.remove('on-alert');
-      blankAlertOne.classList.add('on-alert');
-      return;
-    } else if (playerTwoName === '') {
-      blankAlertOne.classList.remove('on-alert');
-      duplicateAlert.classList.remove('on-alert');
-      blankAlertTwo.classList.add('on-alert');
-      return;
-    }
+    if (e.target.className === 'start-btn') {
+      if (playerOneName === '') {
+        blankAlertTwo.classList.remove('on-alert');
+        duplicateAlert.classList.remove('on-alert');
+        blankAlertOne.classList.add('on-alert');
+        return;
+      } else if (playerTwoName === '') {
+        blankAlertOne.classList.remove('on-alert');
+        duplicateAlert.classList.remove('on-alert');
+        blankAlertTwo.classList.add('on-alert');
+        return;
+      } else if (playerOneName === playerTwoName) {
+        blankAlertOne.classList.remove('on-alert');
+        blankAlertTwo.classList.remove('on-alert');
+        duplicateAlert.classList.add('on-alert');
+        return;
+      }
 
-    if (playerOneName === playerTwoName) {
-      blankAlertOne.classList.remove('on-alert');
-      blankAlertTwo.classList.remove('on-alert');
-      duplicateAlert.classList.add('on-alert');
-      return;
+      dialogHuman.close();
+      ScreenController(playerOneName, playerTwoName);
+    } else if (e.target.className === 'play-btn') {
+      if (playerName === '') {
+        humanAlert.classList.remove('on-alert');
+        blankAlertName.classList.add('on-alert');
+        return;
+      } else if (playerName.toLowerCase() === 'robot') {
+        blankAlertName.classList.remove('on-alert');
+        humanAlert.classList.add('on-alert');
+        return;
+      }
+      
+      dialogRobot.close();
+      if (playerFirst.checked) {
+        ScreenController(playerName, 'Robot');
+      } else {
+        ScreenController('Robot', playerName);
+      }
     }
-    
-    dialogHuman.close();
-    playerTurnDiv.style.visibility = 'visible';
-    ScreenController(playerOneName, playerTwoName);
   }
 
   startBtn.addEventListener('click', startGame);
+  playBtn.addEventListener('click', startGame);
 }
 
 const humanBtn = document.querySelector('.human-btn');
 const robotBtn = document.querySelector('.robot-btn');
 let finished;
 
-humanBtn.addEventListener('click', startHumanMode);
+humanBtn.addEventListener('click', enterName);
+robotBtn.addEventListener('click', enterName);

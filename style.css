@@ -24,9 +24,10 @@
   --pink-theme: #ff647e;
   --white-theme: #f0faff;
   --modal-theme: rgba(38, 99, 137, 0.65);
-  --light-blue-theme: #c7eaff;
-  --blue-theme: #4cafec;
-  --pink-hover-theme: #ffd5dd;
+  --lightblue-theme: #c7eaff;
+  --blue-theme: #3ea7ea;
+  --darkblue-theme: #0090ea;
+  --crown-theme: #ffc800;
 }
 
 body {
@@ -53,13 +54,14 @@ button:hover {
   gap: 2.8rem;
   width: 100%;
   height: 100vh;
-  margin-top: -2rem;
+  box-shadow: inset 0 4rem var(--main-theme), inset 0 -4rem var(--main-theme), inset 0 6rem var(--white-theme), inset 0 -6rem var(--white-theme);
 }
 
 .title {
   font-size: 5.2rem;
   font-weight: 700;
   color: var(--white-theme);
+  margin-top: 2rem;
 }
 
 .turn {
@@ -96,14 +98,11 @@ button:hover {
   box-shadow:inset 0 0 0 0.4rem var(--white-theme);
 }
 
-.human-btn {
-  margin:7.6rem 0 0;
-}
-
 .human-btn:hover,
 .robot-btn:hover {
   color: var(--main-theme);
   background-color: var(--white-theme);
+  
 }
 
 .cell {
@@ -131,40 +130,77 @@ dialog {
   padding: 2rem 1.2rem;
   background-color: var(--white-theme);
   border: none;
+  translate: 0 6.28rem;
 }
 
 ::backdrop {
   background-color: var(--modal-theme);
 }
 
-.dialog-human {
-  background-color: var(--light-blue-theme);
+.dialog-human,
+.dialog-robot {
+  background-color: var(--lightblue-theme);
   position: relative;
 }
 
-.dialog-human h2 {
-  margin: 2.8rem 0 6.8rem;
+.dialog-human h2,
+.dialog-robot h2 {
   text-align: center;
   font-size: 3.2rem;
   font-weight: 500;
   color: var(--darkgray-theme);
+  text-decoration: underline;
+}
+
+.dialog-human h2 {
+  margin: 2.8rem 0 7.2rem;
+}
+
+.dialog-robot h2 {
+  margin: 2.8rem 0 6rem;
 }
 
 .dialog-human p {
-  margin: 2.8rem 0;
-  padding: 0 1.2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin: 2rem 0;
+  padding: 0 1.6rem;
 }
 
-.dialog-human label {
-  margin-right: 0.8rem;
-  font-size: 2.2rem;
+.dialog-robot p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0 1.6rem;
+}
+
+.dialog-human label,
+.dialog-robot label {
+  font-size: 2.4rem;
   color: var(--darkgray-theme);
 }
 
-.dialog-human input {
-  width: 20rem;
+.dialog-human input,
+.dialog-robot input {
+  width: 11.2rem;
   padding: 0.2rem 0.2rem 0.2rem 0.4rem;
   font-size: 2rem;
+}
+
+.first-radio-row {
+  margin: 2.8rem 10.4rem 1.2rem 0;
+}
+
+.second-radio-row {
+  margin: 0 3rem 5.4rem 0;
+}
+
+#player-first,
+#robot-first  {
+ width: 1.2rem;
+ height: 1.2rem;
 }
 
 .alert {
@@ -188,26 +224,34 @@ dialog {
 }
 
 .blank-alert-one {
-  top: 10rem;
-  left: 7.2rem;
+  top: 10.4rem;
+  left: 6rem;
+}
+
+.blank-alert-name,
+.human-alert {
+  top: 9.4rem;
+  left: 6rem;
 }
 
 .blank-alert-two,
 .duplicate-alert {
-  top: 26.4rem;
-  left: 7.2rem;
+  top: 25.2rem;
+  left: 6rem;
 }
 
-.blank-alert-one::before {
-  top: 4rem;
-  left: 10rem;
+.blank-alert-one::before,
+.blank-alert-name::before,
+.human-alert::before {
+  top: 3.8rem;
+  left: 16rem;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
 .blank-alert-two::before,
 .duplicate-alert::before {
-  top: -1.4rem;
-  left: 10rem;
+  top: -1.2rem;
+  left: 16rem;
 }
 
 .alert svg {
@@ -224,17 +268,18 @@ dialog {
   justify-content: space-between;
   width: 100%;
   margin-top: 1rem;
-  padding: 0 0.8rem;
+  padding: 0 1.6rem;
 }
 
 .dialog-human .btn-container {
-  margin-top: 7.6rem;
+  margin-top: 8.4rem;
 }
 
 .back-btn,
 .quit-btn,
 .start-btn,
-.play-again-btn {
+.play-again-btn,
+.play-btn {
   padding: 1.2rem 2.4rem;
   font-size: 2.4rem;
   font-weight: 500;
@@ -248,18 +293,20 @@ dialog {
 }
 
 .start-btn,
-.play-again-btn {
+.play-again-btn,
+.play-btn {
   background-color: var(--blue-theme);
 }
 
 .back-btn:hover,
 .quit-btn:hover {
-  background-color: var(--lightgray-theme);
+  background-color: var(--darkgray-theme);
 }
 
 .start-btn:hover,
-.play-again-btn:hover {
-  background-color: var(--main-theme);
+.play-again-btn:hover,
+.play-btn:hover {
+  background-color: var(--darkblue-theme);
 }
 
 .dialog-result form {
@@ -298,7 +345,7 @@ dialog {
 
 .crown-container svg {
   width: 2.8rem;
-  fill: rgb(255, 200, 0);
+  fill: var(--crown-theme);
 }
 
 .score {
@@ -321,7 +368,6 @@ dialog {
   justify-content: center;
   align-items: center;
   gap: 0.8rem;
-  margin-top: 6.6rem;
 }
 
 .footer a {
@@ -329,14 +375,11 @@ dialog {
   color: var(--darkgray-theme);
 }
 
-.footer a:hover {
-  color: var(--light-blue-theme);
+.footer a:hover,
+.footer img:hover {
+  opacity: 0.65;
 }
 
 .footer img {
   width: 2rem;
-}
-
-.footer img:hover {
-  opacity: 0.5;
 }
