@@ -149,9 +149,9 @@ function ScreenController(playerOneName, playerTwoName) {
         cellBtn.dataset.column = j;
 
         if (cell.getValue() === 1) {
-          cellBtn.innerHTML = '&#10799;';
+          cellBtn.innerHTML = 'X';
         } else if (cell.getValue() === 2) {
-          cellBtn.innerHTML = '&#8413;';
+          cellBtn.innerHTML = 'O';
           cellBtn.classList.add('circle');
         }
 

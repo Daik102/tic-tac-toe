@@ -105,15 +105,14 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 10rem;
+  font-family: sans-serif;
+  font-size: 8rem;
+  font-weight: 700;
   color: var(--darkgray-theme);
   background: var(--white-theme);
 }
 
 .circle {
-  padding-top: 1.8rem;
-  font-size: 8.2rem;
-  font-weight: 900;
   color: var(--pink-theme);
 }
 
