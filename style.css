@@ -1,37 +1,34 @@
 @font-face {
-  font-family: Roboto;
-  src: url(./fonts/Roboto-VariableFont_wdth\,wght.woff2) format('woff2');
-}
-
-@font-face {
   font-family: Play-Bold;
   src: url(./fonts/Play-Bold.woff2) format('woff2');
 }
 
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-size: 10px;
-  font-family: Play-Bold, Roboto, Arial, Helvetica, sans-serif;
+  font-family: Play-Bold, Arial, Helvetica, sans-serif;
 }
 
 :root {
   --main-theme: #74c4f6;
-  --darkgray-theme: #444;
-  --lightgray-theme: #999;
-  --gray-theme: #6c6c6c;
-  --pink-theme: #ff647e;
-  --white-theme: #f0faff;
-  --modal-theme: rgba(38, 99, 137, 0.65);
-  --lightblue-theme: #c7eaff;
   --blue-theme: #3ea7ea;
+  --lightblue-theme: #c7eaff;
   --darkblue-theme: #0090ea;
-  --crown-theme: #ffc800;
+  --gray-theme: #6c6c6c;
+  --lightgray-theme: #999;
+  --darkgray-theme: #444;
+  --white-theme: #f0faff;
+  --pure-white-theme: #fff;
+  --pink-theme: #ff647e;
+  --gold-theme: #ffc800;
+  --orange-theme: #ffa500;
+  --modal-theme: rgba(38, 99, 137, 0.65);
 }
 
 body {
-  background-color: var(--main-theme)
+  background-color: var(--main-theme);
 }
 
 a {
@@ -82,7 +79,7 @@ button:hover {
 
 .mode-btn-container {
   translate: 0 6rem;
-  height: 40rem;
+  margin-bottom: 16.2rem;
 }
 
 .human-btn,
@@ -102,7 +99,6 @@ button:hover {
 .robot-btn:hover {
   color: var(--main-theme);
   background-color: var(--white-theme);
-  
 }
 
 .cell {
@@ -110,10 +106,8 @@ button:hover {
   justify-content: center;
   align-items: center;
   font-size: 10rem;
-  border: none;
   color: var(--darkgray-theme);
   background: var(--white-theme);
-  cursor: pointer;
 }
 
 .circle {
@@ -139,8 +133,8 @@ dialog {
 
 .dialog-human,
 .dialog-robot {
-  background-color: var(--lightblue-theme);
   position: relative;
+  background-color: var(--lightblue-theme);
 }
 
 .dialog-human h2,
@@ -160,20 +154,22 @@ dialog {
   margin: 2.8rem 0 6rem;
 }
 
-.dialog-human p {
-  display: flex;
-  justify-content: center;
-  gap: 1.2rem;
-  margin: 2rem 0;
-  padding: 0 1.6rem;
-}
-
+.dialog-human p,
 .dialog-robot p {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.8rem;
   padding: 0 1.6rem;
+}
+
+.dialog-human p {
+  gap: 1.2rem;
+  margin: 2rem 0;
+  
+}
+
+.dialog-robot p {
+  gap: 0.8rem;
 }
 
 .dialog-human label,
@@ -206,57 +202,54 @@ dialog {
 .alert {
   display: none;
   position: absolute;
+  left: 6rem;
   gap: 0.8rem;
   width: 28.2rem;
   padding: 0.8rem 1.6rem;
   font-size: 1.8rem;
-  background-color: #fff;
+  background-color: var(--pure-white-theme);
   border-radius: 0.4rem;
+}
+
+.alert-blank-one {
+  top: 10.4rem;
+}
+
+.alert-blank-name,
+.alert-robot {
+  top: 9.4rem;
+}
+
+.alert-blank-two,
+.alert-duplicate {
+  top: 25.2rem;
 }
 
 .alert::before {
   content: '';
   position: absolute;
+  left: 16rem;
   width: 2rem;
   height: 1.4rem;
-  background-color: #fff;
+  background-color: var(--pure-white-theme);
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
-.blank-alert-one {
-  top: 10.4rem;
-  left: 6rem;
-}
-
-.blank-alert-name,
-.human-alert {
-  top: 9.4rem;
-  left: 6rem;
-}
-
-.blank-alert-two,
-.duplicate-alert {
-  top: 25.2rem;
-  left: 6rem;
-}
-
-.blank-alert-one::before,
-.blank-alert-name::before,
-.human-alert::before {
+.alert-blank-one::before,
+.alert-blank-name::before,
+.alert-robot::before {
   top: 3.8rem;
-  left: 16rem;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
-.blank-alert-two::before,
-.duplicate-alert::before {
+.alert-blank-two::before,
+.alert-duplicate::before {
   top: -1.2rem;
-  left: 16rem;
 }
 
 .alert svg {
   width: 2.4rem;
-  fill: orange;
+  fill: var(--orange-theme);
 }
 
 .on-alert {
@@ -345,7 +338,7 @@ dialog {
 
 .crown-container svg {
   width: 2.8rem;
-  fill: var(--crown-theme);
+  fill: var(--gold-theme);
 }
 
 .score {
@@ -360,7 +353,6 @@ dialog {
 
 .score span {
   font-size: 2.4rem;
-  color: var(--darkgray-theme);
 }
 
 .footer {
@@ -377,7 +369,7 @@ dialog {
 
 .footer a:hover,
 .footer img:hover {
-  opacity: 0.65;
+  opacity: 0.75;
 }
 
 .footer img {
