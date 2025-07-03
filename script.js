@@ -152,7 +152,6 @@ function ScreenController(playerOneName, playerTwoName) {
           cellBtn.innerHTML = 'X';
         } else if (cell.getValue() === 2) {
           cellBtn.innerHTML = 'O';
-          cellBtn.classList.add('circle');
         }
 
         boardDiv.appendChild(cellBtn);
