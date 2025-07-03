@@ -12,16 +12,16 @@
 }
 
 :root {
-  --main-theme: #74c4f6;
-  --blue-theme: #3ea7ea;
-  --lightblue-theme: #c7eaff;
-  --darkblue-theme: #0090ea;
+  --main-theme: rgba(31, 115, 167, 0.8);
+  --blue-theme: rgb(31, 115, 167);
+  --lightblue-theme: rgba(240, 250, 255, 0.8);
+  --darkblue-theme: rgb(4, 74, 118);
   --gray-theme: #6c6c6c;
   --lightgray-theme: #999;
   --darkgray-theme: #444;
   --white-theme: #f0faff;
   --pure-white-theme: #fff;
-  --pink-theme: #ff647e;
+  --pink-theme: #ff5d88;
   --gold-theme: #ffc800;
   --orange-theme: #ffa500;
   --modal-theme: rgba(38, 99, 137, 0.65);
@@ -97,7 +97,7 @@ button:hover {
 
 .human-btn:hover,
 .robot-btn:hover {
-  color: var(--main-theme);
+  color: var(--blue-theme);
   background-color: var(--white-theme);
 }
 
@@ -322,7 +322,7 @@ dialog {
 .crown-container {
   display: flex;
   justify-content: center;
-  gap: 22.6rem;
+  gap: 22.4rem;
   width: 100%;
   margin-bottom: -1rem;
 }
@@ -362,15 +362,15 @@ dialog {
 }
 
 .footer a {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   color: var(--darkgray-theme);
 }
 
 .footer a:hover,
 .footer img:hover {
-  opacity: 0.75;
+  opacity: 0.65;
 }
 
 .footer img {
-  width: 2rem;
+  width: 1.6rem;
 }
