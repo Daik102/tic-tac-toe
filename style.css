@@ -14,12 +14,12 @@
 :root {
   --main-theme: rgba(31, 115, 167, 0.8);
   --blue-theme: rgb(31, 115, 167);
-  --lightblue-theme: rgba(240, 250, 255, 0.8);
-  --darkblue-theme: rgb(4, 74, 118);
+  --lightblue-theme: #d6efff;
+  --darkblue-theme: rgb(9, 87, 136);
   --gray-theme: #6c6c6c;
   --lightgray-theme: #999;
   --darkgray-theme: #444;
-  --white-theme: #f0faff;
+  --white-theme: #eff9ff;
   --pure-white-theme: #fff;
   --pink-theme: #ff5d88;
   --gold-theme: #ffc800;
@@ -74,7 +74,7 @@ button:hover {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 0.8rem;
-  background-color: var(--main-theme);
+  background-color: var(--white-theme);
 }
 
 .mode-btn-container {
@@ -108,12 +108,8 @@ button:hover {
   font-family: sans-serif;
   font-size: 8rem;
   font-weight: 700;
-  color: var(--darkgray-theme);
-  background: var(--white-theme);
-}
-
-.circle {
-  color: var(--pink-theme);
+  color: var(--white-theme);
+  background-color: var(--main-theme);
 }
 
 dialog {
@@ -123,7 +119,7 @@ dialog {
   padding: 2rem 1.2rem;
   background-color: var(--white-theme);
   border: none;
-  translate: 0 6.28rem;
+  translate: 0 6.52rem;
 }
 
 ::backdrop {
