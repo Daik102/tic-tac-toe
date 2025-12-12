@@ -5,6 +5,7 @@ function gameBoard() {
 
   for (let i = 0; i < rows; i++) {
     board[i] = [];
+
     for (let j = 0; j < columns; j++) {
       board[i].push(Cell());
     }
@@ -23,9 +24,7 @@ function gameBoard() {
     board[row][column].addValue(player);
   };
 
-  
-
-  return {getBoard, getBoardValues, putSymbol};
+  return { getBoard, getBoardValues, putSymbol };
 }
 
 function Cell() {
@@ -35,18 +34,17 @@ function Cell() {
   const getValue = () => value;
   const resetValue = () => value = 0;
 
-  return {addValue, getValue, resetValue};
+  return { addValue, getValue, resetValue };
 }
 
 function GameController(playerOneName, playerTwoName) {
   const board = gameBoard();
   const players = [
-    {name: playerOneName, symbol: 1},
-    {name: playerTwoName, symbol: 2}
+    { name: playerOneName, symbol: 1 },
+    { name: playerTwoName, symbol: 2 }
   ];
 
   const getPlayers = () => players;
-
   let activePlayer = players[0];
 
   const switchPlayerTurn = (result) => {
@@ -62,15 +60,18 @@ function GameController(playerOneName, playerTwoName) {
   const playRound = (row, column) => {
     if (activePlayer.name !== 'Robot') {
       const occupiedCell = board.putSymbol(row, column, getActivePlayer().symbol);
+
       if (occupiedCell) {
         return;
       }
     }
 
     const boardValues = board.getBoardValues();
+
     if (row === 'getValue') {
       return boardValues; 
     }
+
     let result;
 
     if (boardValues[0][2] === 1 && boardValues[1][1] === 1 && boardValues[2][0] === 1 || boardValues[0][0] === 1 && boardValues[1][1] === 1 && boardValues[2][2] === 1) {
@@ -83,7 +84,8 @@ function GameController(playerOneName, playerTwoName) {
 
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        const win = boardValues[i].every((val, i, arr) => val === arr[0]);
+        const win = boardValues[i].every((val, _, arr) => val === arr[0]);
+
         if (win && boardValues[i][j] === 1) {
           result = 1;
         } else if (win && boardValues[i][j] === 2) {
@@ -96,7 +98,7 @@ function GameController(playerOneName, playerTwoName) {
       }
 
       const column = [boardValues[0][i], boardValues[1][i], boardValues[2][i]];
-      const win = column.every((val, i, arr) => val === arr[0]);
+      const win = column.every((val, _, arr) => val === arr[0]);
 
       if (win) {
         if (column[i] === 1) {
@@ -117,7 +119,7 @@ function GameController(playerOneName, playerTwoName) {
 
   const getOccupiedCell = (row, column) => board.putSymbol(row, column, getActivePlayer().symbol);
 
-  return {getBoard: board.getBoard, getPlayers, getActivePlayer, playRound, getOccupiedCell};
+  return { getBoard: board.getBoard, getPlayers, getActivePlayer, playRound, getOccupiedCell };
 }
 
 function ScreenController(playerOneName, playerTwoName) {
@@ -167,6 +169,7 @@ function ScreenController(playerOneName, playerTwoName) {
 
     actionHandlerBoard(selectedRow, selectedColumn);
   }
+
   boardDiv.addEventListener('click', getHumanMove);
 
   const getRobotMove = () => {
@@ -222,6 +225,7 @@ function ScreenController(playerOneName, playerTwoName) {
           } else if (cell === humanSymbol) {
             humanSymbolCounter++;
           }
+
           if (indexCounter === 3 && robotSymbolCounter === 2 && humanSymbolCounter === 0) {
             robotRow = i;
           }
@@ -240,6 +244,7 @@ function ScreenController(playerOneName, playerTwoName) {
           } else if (cell === humanSymbol) {
             columns[j][1]++;
           }
+          
           if (i === 2 && columns[j][0] === 2 && columns[j][1] === 0) {
             robotColumn = j;
           }
@@ -283,6 +288,7 @@ function ScreenController(playerOneName, playerTwoName) {
           } else if (cell === humanSymbol) {
             humanSymbolCounter++;
           }
+
           if (indexCounter === 3 && humanSymbolCounter === 2 && robotSymbolCounter === 0) {
             robotRow = i;
           }
@@ -312,6 +318,7 @@ function ScreenController(playerOneName, playerTwoName) {
       if (robotRow === undefined) {
         robotRow = Math.floor(Math.random() * 3);
       }
+
       if (robotColumn === undefined) {
         robotColumn = Math.floor(Math.random() * 3);
       }
@@ -330,6 +337,7 @@ function ScreenController(playerOneName, playerTwoName) {
   }
 
   const activePlayer = game.getActivePlayer();
+
   if (activePlayer.name === 'Robot') {
     getRobotMove();
   }
@@ -368,6 +376,7 @@ function ScreenController(playerOneName, playerTwoName) {
     e.preventDefault();
     location.reload();
   }
+
   quitBtn.addEventListener('click', reloadPage);
 
   const restartGame = (e) => {
@@ -383,16 +392,18 @@ function ScreenController(playerOneName, playerTwoName) {
         board[i][j].resetValue();
       }
     }
+
     dialogResult.close();
     updateScreen();
 
     const activePlayer = game.getActivePlayer();
+
     if (activePlayer.name === 'Robot') {
       getRobotMove();
     }
   }
-  playAgainBtn.addEventListener('click', restartGame);
 
+  playAgainBtn.addEventListener('click', restartGame);
   updateScreen();
 }
 
@@ -419,6 +430,7 @@ function enterName(e) {
     e.preventDefault();
     location.reload();
   }
+
   backBtn.addEventListener('click', reloadPage);
   backBtnRobot.addEventListener('click', reloadPage);
 
@@ -467,6 +479,7 @@ function enterName(e) {
       }
       
       dialogRobot.close();
+
       if (playerFirst.checked) {
         ScreenController(playerName, 'Robot');
       } else {
@@ -474,6 +487,7 @@ function enterName(e) {
       }
     }
   }
+
   startBtn.addEventListener('click', startGame);
   playBtn.addEventListener('click', startGame);
 }
