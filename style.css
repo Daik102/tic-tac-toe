@@ -411,6 +411,12 @@ button {
   color: var(--background-theme);
 }
 
+@media screen and (orientation: portrait) {
+  .wrapper {
+    padding-bottom: 8rem;
+  }
+}
+
 @media screen and (orientation: portrait) and (max-width: 20rem) {
   html {
     font-size: 7px;
