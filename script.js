@@ -432,6 +432,8 @@ function GameController(playerOneName, playerTwoName) {
         getRobotMove();
       }
     } else {
+      const message = document.querySelector('.message');
+      message.classList.remove('player-two-message');
       players[0].name = '';
       players[1].name = '';
       reloadPage();
@@ -451,7 +453,7 @@ function GameController(playerOneName, playerTwoName) {
 function renderBoard(board, activePlayer, pattern) {
   const boardDiv = document.querySelector('.board');
   boardDiv.innerHTML = '';
-
+  
   for (let i = 0; i < board.length; i++) {
     const boardRow = board[i];
     
@@ -463,8 +465,10 @@ function renderBoard(board, activePlayer, pattern) {
       cell.dataset.column = j;
 
       if (value === 1) {
+        cell.classList.add('player-one-cell');
         cell.textContent = 'X';
       } else if (value === 2) {
+        cell.classList.add('player-two-cell');
         cell.textContent = 'O';
       }
 
@@ -476,6 +480,7 @@ function renderBoard(board, activePlayer, pattern) {
   
   if (activePlayer) {
     const message = document.querySelector('.message');
+    activePlayer.symbol === 2 ? message.classList.add('player-two-message') : message.classList.remove('player-two-message');
     message.textContent = `${activePlayer.name}'s turn`;
   
     cells.forEach((cell) => {
@@ -666,7 +671,7 @@ function openDialog(e) {
       <div class="dialog dialog-human">
         <form>
           <p>
-            <label for="player-one-name">Player 1: </label>
+            <label for="player-one-name" class="player-one-label">Player 1: </label>
             <input type="text" id="player-one-name" maxlength="5">
           </p>
           <div class="alert-blank-one alert">
@@ -674,7 +679,7 @@ function openDialog(e) {
             Please fill out here
           </div>
           <p>
-            <label for="player-two-name">Player 2: </label>
+            <label for="player-two-name" class="player-two-label">Player 2: </label>
             <input type="text" id="player-two-name" maxlength="5">
           </p>
           <div class="alert-blank-two alert">
@@ -741,7 +746,7 @@ function openDialog(e) {
       <div class="dialog dialog-robot">
         <form>
           <p class="name-container">
-            <label for="player-name">Name: </label>
+            <label for="player-name" class="player-label">Name: </label>
             <input type="text" id="player-name" maxlength="5">
           </p>
           <div class="alert-blank-name alert">
@@ -754,11 +759,11 @@ function openDialog(e) {
           </div>
           <p class="first-radio-row">
             <input type="radio" id="player-first" name="play-order" value="player-first" checked>
-            <label for="player-first">I play first</label>
+            <label for="player-first" class="player-first-label">I play first</label>
           </p>
           <p class="second-radio-row">
             <input type="radio" id="robot-first" name="play-order" value="robot-first">
-            <label for="robot-first">Robot plays first</label>
+            <label for="robot-first" class="robot-first-label">Robot plays first</label>
           </p>
           <div class="btn-container">
             <button type="button" class="back-btn-for-robot">Back</button>
