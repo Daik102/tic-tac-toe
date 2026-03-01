@@ -1,4 +1,4 @@
-function gameBoard() {
+function createGameBoard() {
   const rows = 3;
   const columns = 3;
   const board = [];
@@ -7,7 +7,7 @@ function gameBoard() {
     board[i] = [];
 
     for (let j = 0; j < columns; j++) {
-      board[i].push(Cell());
+      board[i].push(createCell());
     }
   }
 
@@ -22,7 +22,7 @@ function gameBoard() {
   };
 }
 
-function Cell() {
+function createCell() {
   let value = 0;
   const setValue = (playerSymbol) => value = playerSymbol;
   const getValue = () => value;
@@ -35,62 +35,64 @@ function Cell() {
   };
 }
 
-function GameController(playerOneName, playerTwoName) {
-  const board = gameBoard();
-  const players = [
-    { name: playerOneName, symbol: 1 },
-    { name: playerTwoName, symbol: 2 }
-  ];
-  
-  let activePlayer = players[0];
-  let result = null;
+function createPlayer(symbol, active) {
+  return {
+    name: '',
+    symbol,
+    active,
+    result: null,
+    pattern: [],
+    score: 0,
+  };
+}
+
+function gameController() {
+  const board = createGameBoard();
+  prepareGame();
+
+  function getActivePlayer() {
+    let activePlayer = {};
+    playerOne.active ? activePlayer = playerOne : activePlayer = playerTwo;
+    return activePlayer;
+  }
 
   const getHumanMove = (e) => {
-    if (activePlayer.name === 'Robot' || result !== null || !e.target.classList.contains('cell')) {
+    const activePlayer = getActivePlayer();
+    
+    if (activePlayer.name === 'Robot' || activePlayer.result !== null || !e.target.classList.contains('cell')) {
       return;
     }
     
     const row = e.target.dataset.row;
     const column = e.target.dataset.column;
-
-    handleMove(row, column);
+    const coordinate = [row, column];
+    
+    handleMove(coordinate);
   }
 
-  let gotMove;
-
-  const getRobotMove = () => {
-    if (gotMove) {
-      return;
-    }
-
-    gotMove = true;
+  const getRobotMove = () => { 
     const boardValues = board.getBoardValues();
+    const activePlayer = getActivePlayer();
     const symbol = activePlayer.symbol;
-    let opponentSymbol = 1;
+    let opponentSymbol = playerOne.symbol;
     
     if (symbol === opponentSymbol) {
-      opponentSymbol = 2;
+      opponentSymbol = playerTwo.symbol;
     }
 
-    let robotRow = null;
-    let robotColumn = null;
+    let coordinate = [];
 
     function winDiagonally(symbol) {
       if (boardValues[0][0] === symbol && boardValues[1][1] === symbol && boardValues[2][2] === 0) {
-        robotRow = 2;
-        robotColumn = 2;
+        coordinate = [2, 2];
       } else if (boardValues[0][0] === symbol && boardValues[2][2] === symbol && boardValues[1][1] === 0 || boardValues[0][2] === symbol && boardValues[2][0] === symbol && boardValues[1][1] === 0) {
-        robotRow = 1;
-        robotColumn = 1;
+        coordinate = [1, 1];
       } else if (boardValues[1][1] === symbol && boardValues[2][2] === symbol && boardValues[0][0] === 0) {
-        robotRow = 0;
-        robotColumn = 0;
+        coordinate = [0, 0];
       } else if (boardValues[0][2] === symbol && boardValues[1][1] === symbol && boardValues[2][0] === 0) {
-        robotRow = 2;
-        robotColumn = 0;
+        coordinate = [2, 0];
       } else if (boardValues[2][0] === symbol && boardValues[1][1] === symbol && boardValues[0][2] === 0) {
-        robotRow = 0;
-        robotColumn = 2;
+        coordinate = [0, 2];
       }
     }
 
@@ -112,14 +114,13 @@ function GameController(playerOneName, playerTwoName) {
           }
 
           if (symbolCounter === 2 && columnIndex !== null) {
-            robotRow = i;
-            robotColumn = columnIndex;
+            coordinate = [i, columnIndex];
           }
         }
       }
     }
 
-    if (robotRow === null) {
+    if (coordinate.length !== 2) {
       winHorizontally(symbol);
     }
     
@@ -140,30 +141,29 @@ function GameController(playerOneName, playerTwoName) {
           }
 
           if (symbolCounter === 2 && rowIndex !== null) {
-            robotRow = rowIndex;
-            robotColumn = i;
+            coordinate = [rowIndex, i];
           }
         }
       }
     }
     
-    if (robotRow === null) {
+    if (coordinate.length !== 2) {
       winVertically(symbol);
     }
     // Prevent opponent's victory diagonally.
-    if (robotRow === null) {
+    if (coordinate.length !== 2) {
       winDiagonally(opponentSymbol);
     }
     // Prevent opponent's victory horizontally.
-    if (robotRow === null) {
+    if (coordinate.length !== 2) {
       winHorizontally(opponentSymbol);
     }
     // Prevent opponent's victory vertically.
-    if (robotRow === null) {
+    if (coordinate.length !== 2) {
       winVertically(opponentSymbol);
     }
     
-    if (robotRow === null) {
+    if (coordinate.length !== 2) {
       const emptyCells = [];
 
       for (let i = 0; i < boardValues.length; i++) {
@@ -179,44 +179,57 @@ function GameController(playerOneName, playerTwoName) {
       }
 
       const randomIndex = Math.floor(Math.random() * emptyCells.length);
-      robotRow = emptyCells[randomIndex][0];
-      robotColumn = emptyCells[randomIndex][1];
+      const chosenCell = emptyCells[randomIndex];
+      coordinate = [chosenCell[0], chosenCell[1]];
     }
     
     setTimeout(() => {
-      gotMove = false;
-      handleMove(robotRow, robotColumn);
+      handleMove(coordinate);
     }, 1000);
   };
 
-  const handleMove = (row, column) => {
+  function handleMove(coordinate) {
+    const row = coordinate[0];
+    const column = coordinate[1];
     const occupiedCell = board.getBoard()[row][column].getValue();
 
-    if (occupiedCell || activePlayer.name === '') {
+    if (occupiedCell) {
       return;
     }
-    
-    board.putSymbol(row, column, activePlayer.symbol);
-    checkResult();
-    activePlayer = activePlayer === players[0] ? players[1] : players[0];
 
-    if (result !== null) {
-      displayResult();
-    } else {
-      renderBoard(board.getBoard(), activePlayer);
-      moveWithArrowKey(activePlayer, board.getBoardValues());
+    let activePlayer = getActivePlayer();
+    const symbol = activePlayer.symbol;
     
+    board.putSymbol(row, column, symbol);
+    checkResult();
+    
+    if (playerOne.active) {
+      playerOne.active = false;
+      playerTwo.active = true;
+    } else {
+      playerOne.active = true;
+      playerTwo.active = false;
+    }
+
+    if (activePlayer.result !== null) {
+      displayResult(activePlayer);
+    } else {
+      activePlayer = getActivePlayer();
+      renderBoard(board.getBoard(), activePlayer);
+      moveWithArrowKey(board.getBoardValues());
+      
       if (activePlayer.name === 'Robot') {
         getRobotMove();
       }
     }
-  };
+  }
 
-  let pattern = [];
-
-  const checkResult = () => {
+  function checkResult() {
     const boardValues = board.getBoardValues();
+    const activePlayer = getActivePlayer();
     const symbol = activePlayer.symbol;
+    let result = activePlayer.result;
+    let pattern = activePlayer.pattern;
     // Check the winner diagonally.
     if (boardValues[0][2] === symbol && boardValues[1][1] === symbol && boardValues[2][0] === symbol) {
       result = symbol;
@@ -225,125 +238,128 @@ function GameController(playerOneName, playerTwoName) {
       if (boardValues[0][0] === symbol && boardValues[1][1] === symbol && boardValues[2][2] === symbol) {
         pattern = [0, 2, 4, 6, 8];
       }
-
-      return;
     } else if (boardValues[0][0] === symbol && boardValues[1][1] === symbol && boardValues[2][2] === symbol) {
       result = symbol;
       pattern = [0, 4, 8];
-      return;
     }
     // Check the winner horizontally.
-    for (let i = 0; i < boardValues.length; i++) {
-      const boardValuesRow = boardValues[i];
-      let symbolCounter = 0;
+    if (!result) {
+      for (let i = 0; i < boardValues.length; i++) {
+        const boardValuesRow = boardValues[i];
+        let symbolCounter = 0;
 
-      for (let j = 0; j < boardValuesRow.length; j++) {
-        if (boardValuesRow[j] === symbol) {
-          symbolCounter += 1;
+        for (let j = 0; j < boardValuesRow.length; j++) {
+          if (boardValuesRow[j] === symbol) {
+            symbolCounter += 1;
 
-          if (symbolCounter === 3) {
-            result = symbol;
+            if (symbolCounter === 3) {
+              result = symbol;
 
-            if (i === 0) {
-              pattern = [0, 1, 2];
+              if (i === 0) {
+                pattern = [0, 1, 2];
 
-              if (boardValues[1][0] === symbol && boardValues[2][0] === symbol) {
-                pattern = [0, 1, 2, 3, 6];
-              } else if (boardValues[1][1] === symbol && boardValues[2][1] === symbol) {
-                pattern = [0, 1, 2, 4, 7];
-              } else if (boardValues[1][2] === symbol && boardValues[2][2] === symbol) {
-                pattern = [0, 1, 2, 5, 8];
-              }
-            } else if (i === 1) {
-              pattern = [3, 4, 5];
+                if (boardValues[1][0] === symbol && boardValues[2][0] === symbol) {
+                  pattern = [0, 1, 2, 3, 6];
+                } else if (boardValues[1][1] === symbol && boardValues[2][1] === symbol) {
+                  pattern = [0, 1, 2, 4, 7];
+                } else if (boardValues[1][2] === symbol && boardValues[2][2] === symbol) {
+                  pattern = [0, 1, 2, 5, 8];
+                }
+              } else if (i === 1) {
+                pattern = [3, 4, 5];
 
-              if (boardValues[0][0] === symbol && boardValues[2][0] === symbol) {
-                pattern = [0, 3, 4, 5, 6];
-              } else if (boardValues[0][1] === symbol && boardValues[2][1] === symbol) {
-                pattern = [1, 3, 4, 5, 7];
-              } else if (boardValues[0][2] === symbol && boardValues[2][2] === symbol) {
-                pattern = [2, 3, 4, 5, 8];
-              }
-            } else {
-              pattern = [6, 7, 8];
+                if (boardValues[0][0] === symbol && boardValues[2][0] === symbol) {
+                  pattern = [0, 3, 4, 5, 6];
+                } else if (boardValues[0][1] === symbol && boardValues[2][1] === symbol) {
+                  pattern = [1, 3, 4, 5, 7];
+                } else if (boardValues[0][2] === symbol && boardValues[2][2] === symbol) {
+                  pattern = [2, 3, 4, 5, 8];
+                }
+              } else {
+                pattern = [6, 7, 8];
 
-              if (boardValues[0][0] === symbol && boardValues[1][0] === symbol) {
-                pattern = [0, 3, 6, 7, 8];
-              } else if (boardValues[0][1] === symbol && boardValues[1][1] === symbol) {
-                pattern = [1, 4, 6, 7, 8];
-              } else if (boardValues[0][2] === symbol && boardValues[1][2] === symbol) {
-                pattern = [2, 5, 6, 7, 8];
+                if (boardValues[0][0] === symbol && boardValues[1][0] === symbol) {
+                  pattern = [0, 3, 6, 7, 8];
+                } else if (boardValues[0][1] === symbol && boardValues[1][1] === symbol) {
+                  pattern = [1, 4, 6, 7, 8];
+                } else if (boardValues[0][2] === symbol && boardValues[1][2] === symbol) {
+                  pattern = [2, 5, 6, 7, 8];
+                }
               }
             }
-
-            return;
           }
         }
       }
     }
     // Check the winner vertically.
-    const boardValuesRow = boardValues[0];
+    if (!result) {
+      const boardValuesRow = boardValues[0];
 
-    for (let i = 0; i < boardValuesRow.length; i++) {
-      let symbolCounter = 0;
+      for (let i = 0; i < boardValuesRow.length; i++) {
+        let symbolCounter = 0;
 
-      for (let j = 0; j < boardValues.length; j++) {
-        if (boardValues[j][i] === symbol) {
-          symbolCounter += 1;
+        for (let j = 0; j < boardValues.length; j++) {
+          if (boardValues[j][i] === symbol) {
+            symbolCounter += 1;
 
-          if (symbolCounter === 3) {
-            result = symbol;
+            if (symbolCounter === 3) {
+              result = symbol;
 
-            if (i === 0) {
-              pattern = [0, 3, 6];
-            } else if (i === 1) {
-              pattern = [1, 4, 7];
-            } else {
-              pattern = [2, 5, 8];
+              if (i === 0) {
+                pattern = [0, 3, 6];
+              } else if (i === 1) {
+                pattern = [1, 4, 7];
+              } else {
+                pattern = [2, 5, 8];
+              }
             }
-
-            return;
           }
         }
       }
     }
     // Check if the game is draw.
-    let occupiedCells = 0;
+    if (!result) {
+      let occupiedCells = 0;
     
-    for (let i = 0; i < boardValues.length; i++) {
-      const boardValuesRow = boardValues[i];
+      for (let i = 0; i < boardValues.length; i++) {
+        const boardValuesRow = boardValues[i];
 
-      for (let j = 0; j < boardValuesRow.length; j++) {
-        if (boardValuesRow[j] !== 0) {
-          occupiedCells += 1;
+        for (let j = 0; j < boardValuesRow.length; j++) {
+          if (boardValuesRow[j] !== 0) {
+            occupiedCells += 1;
 
-          if (occupiedCells === 9) {
-            result = 0;
+            if (occupiedCells === 9) {
+              result = 'draw';
+            }
           }
         }
       }
     }
-  };
-  
-  const getActivePlayer = () => activePlayer;
-  const getResult = () => result;
-  
-  let playerOneScore = 0;
-  let playerTwoScore = 0;
-
-  function displayResult() {
-    const message = document.querySelector('.message');
     
-    if (result === 0) {
+    if (result) {
+      activePlayer.result = result;
+
+      if (result !== 'draw') {
+        activePlayer.pattern = pattern;
+      }
+    }
+  }
+  
+  function displayResult(activePlayer) {
+    const message = document.querySelector('.message');
+    const result = activePlayer.result;
+    const pattern = activePlayer.pattern;
+    
+    if (result === 'draw') {
       message.textContent = 'Draw';
       renderBoard(board.getBoard());
     } else {
-      if (result === 1) {
-        playerOneScore += 1;
-        message.innerHTML = `${playerOneName} won!`;
+      if (result === playerOne.symbol) {
+        playerOne.score += 1;
+        message.innerHTML = `${playerOne.name} won!`;
       } else {
-        playerTwoScore +=1;
-        message.innerHTML = `${playerTwoName} won!`;
+        playerTwo.score += 1;
+        message.innerHTML = `${playerTwo.name} won!`;
       }
 
       renderBoard(board.getBoard(), '', pattern);
@@ -361,10 +377,10 @@ function GameController(playerOneName, playerTwoName) {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V18H19V19Z" /></svg>
               </div>
             </div>
-            <div class="name-row"><p>${playerOneName}</p><p>${playerTwoName}</p></div>
-            <div class="score-row"><p>${playerOneScore}</p><div class="sword-container">
+            <div class="name-row"><p>${playerOne.name}</p><p>${playerTwo.name}</p></div>
+            <div class="score-row"><p>${playerOne.score}</p><div class="sword-container">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.2,2.44L18.1,14.34L20.22,12.22L21.63,13.63L19.16,16.1L22.34,19.28C22.73,19.67 22.73,20.3 22.34,20.69L21.63,21.4C21.24,21.79 20.61,21.79 20.22,21.4L17,18.23L14.56,20.7L13.15,19.29L15.27,17.17L3.37,5.27V2.44H6.2M15.89,10L20.63,5.26V2.44H17.8L13.06,7.18L15.89,10M10.94,15L8.11,12.13L5.9,14.34L3.78,12.22L2.37,13.63L4.84,16.1L1.66,19.29C1.27,19.68 1.27,20.31 1.66,20.7L2.37,21.41C2.76,21.8 3.39,21.8 3.78,21.41L7,18.23L9.44,20.7L10.85,19.29L8.73,17.17L10.94,15Z" /></svg>
-            </div><p>${playerTwoScore}</p></div>
+            </div><p>${playerTwo.score}</p></div>
             <div class="btn-container">
               <button type="button" class="quit-btn">Quit</button>
               <button type="button" class="retry-btn">Retry</button>
@@ -382,9 +398,9 @@ function GameController(playerOneName, playerTwoName) {
       const quitBtn = document.querySelector('.quit-btn');
       const retryBtn = document.querySelector('.retry-btn');
 
-      if (result === 1) {
+      if (result === playerOne.symbol) {
         playerOneWon.classList.add('visible-crown');
-      } else if (result === 2) {
+      } else if (result === playerTwo.symbol) {
         playerTwoWon.classList.add('visible-crown');
       }
       
@@ -392,9 +408,9 @@ function GameController(playerOneName, playerTwoName) {
       retryBtn.addEventListener('click', resetGame);
 
       document.addEventListener('keydown', (e) => {
-        const currentFocus = document.activeElement;
+        const activeElement = document.activeElement;
 
-        if (currentFocus === document.body) {
+        if (activeElement === document.body) {
           if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
             quitBtn.focus();
           }
@@ -418,35 +434,117 @@ function GameController(playerOneName, playerTwoName) {
   function resetGame(e) {
     const gameBoard = board.getBoard();
     gameBoard.map((row) => row.map((cell) => cell.resetValue()));
-    activePlayer = players[0];
-    result = null;
-    pattern = [];
+    playerOne.active = true;
+    playerTwo.active = false;
+    playerOne.result = null;
+    playerTwo.result = null;
+    playerOne.pattern = [];
+    playerTwo.pattern = [];
     
     if (e.target.classList.contains('retry-btn')) {
       const boardDiv = document.querySelector('.board');
       boardDiv.classList.add('display-board');
-      renderBoard(gameBoard, activePlayer);
-      moveWithArrowKey(activePlayer);
+      renderBoard(gameBoard, playerOne);
+      moveWithArrowKey();
 
-      if (activePlayer.name === 'Robot') {
+      if (playerOne.name === 'Robot') {
         getRobotMove();
       }
     } else {
       const message = document.querySelector('.message');
       message.classList.remove('player-two-message');
-      players[0].name = '';
-      players[1].name = '';
+      playerOne.name = '';
+      playerTwo.name = '';
+      playerOne.score = 0;
+      playerTwo.score = 0;
       reloadPage();
     }
   }
+
+  const moveWithArrowKey = (boardValues) => {
+    const cells = document.querySelectorAll('.cell');
+    const columns = 3;
+    let cellIndex = 0;
+
+    function adjustCellIndex(e, initial) {
+      if (initial) {
+        if (boardValues) {
+          const row = Math.floor(cellIndex / columns);
+          const column = cellIndex % columns;
+          const symbol = boardValues[row][column];
+
+          if (symbol !== 0) {
+            cellIndex += 1;
+          }
+        }
+      } else {
+        if (e.key === 'ArrowRight') {
+          cellIndex += 1;
+        } else if (e.key === 'ArrowLeft') {
+          cellIndex -= 1;
+        } else if (e.key === 'ArrowDown') {
+          cellIndex += columns;
+        } else if (e.key === 'ArrowUp') {
+          cellIndex -= columns;
+        }
+      }
+
+      if (cellIndex >= cells.length) {
+        cellIndex -= cells.length;
+      } else if (cellIndex < 0) {
+        cellIndex += cells.length;
+      }
+
+      if (boardValues) {
+        const row = Math.floor(cellIndex / columns);
+        const column = cellIndex % columns;
+        const symbol = boardValues[row][column];
+
+        if (symbol !== 0) {
+          adjustCellIndex(e, initial);
+        }
+      }
+      
+      cells[cellIndex].focus();
+    }
+
+    const activePlayer = getActivePlayer();
+    const name = activePlayer.name;
+
+    function handleKeydown(e, initial) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        adjustCellIndex(e, initial);
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const message = document.querySelector('.message');
+        message.textContent = 'Use arrow keys please';
+
+        setTimeout(() => {
+          if (!activePlayer.result) {
+            message.textContent = `${name}'s turn`;
+          }
+        }, 1500);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const activeElement = document.activeElement;
+
+      if (activeElement === document.body) {
+        handleKeydown(e, 'initial');
+      }
+    });
+    
+    cells.forEach((cell) => {
+      cell.addEventListener('keydown', handleKeydown);
+    });
+  };
 
   return {
     getBoard: board.getBoard,
     getHumanMove,
     getRobotMove,
-    handleMove,
-    getActivePlayer,
-    getResult,
+    moveWithArrowKey,
   };
 }
 
@@ -463,13 +561,13 @@ function renderBoard(board, activePlayer, pattern) {
       cell.classList.add('cell');
       cell.dataset.row = i;
       cell.dataset.column = j;
-
-      if (value === 1) {
+      
+      if (value === playerOne.symbol) {
         cell.classList.add('player-one-cell');
-        cell.textContent = 'X';
-      } else if (value === 2) {
+        cell.textContent = playerOne.symbol;
+      } else if (value === playerTwo.symbol) {
         cell.classList.add('player-two-cell');
-        cell.textContent = 'O';
+        cell.textContent = playerTwo.symbol;
       }
 
       boardDiv.appendChild(cell);
@@ -480,8 +578,16 @@ function renderBoard(board, activePlayer, pattern) {
   
   if (activePlayer) {
     const message = document.querySelector('.message');
-    activePlayer.symbol === 2 ? message.classList.add('player-two-message') : message.classList.remove('player-two-message');
-    message.textContent = `${activePlayer.name}'s turn`;
+    const symbol = activePlayer.symbol;
+    const name = activePlayer.name;
+
+    if (symbol === playerTwo.symbol) {
+      message.classList.add('player-two-message');
+    } else {
+      message.classList.remove('player-two-message');
+    }
+
+    message.textContent = `${name}'s turn`;
   
     cells.forEach((cell) => {
       cell.addEventListener('mouseenter', (e) => {
@@ -499,7 +605,7 @@ function renderBoard(board, activePlayer, pattern) {
       });
     });
   }
-
+  
   if (pattern) {
     for (const index of pattern) {
       cells[index].classList.add('victory-cell');
@@ -507,99 +613,20 @@ function renderBoard(board, activePlayer, pattern) {
   }
 };
 
-function moveWithArrowKey(activePlayer, boardValues) {
-  const cells = document.querySelectorAll('.cell');
-  const columns = 3;
-  let cellIndex = 0;
-
-  function adjustCellIndex(e, initial) {
-    if (initial) {
-      if (boardValues) {
-        const row = Math.floor(cellIndex / columns);
-        const column = cellIndex % columns;
-        const symbol = boardValues[row][column];
-
-        if (symbol !== 0) {
-          cellIndex += 1;
-        }
-      }
-    } else {
-      if (e.key === 'ArrowRight') {
-        cellIndex += 1;
-      } else if (e.key === 'ArrowLeft') {
-        cellIndex -= 1;
-      } else if (e.key === 'ArrowDown') {
-        cellIndex += columns;
-      } else if (e.key === 'ArrowUp') {
-        cellIndex -= columns;
-      }
-    }
-
-    if (cellIndex >= cells.length) {
-      cellIndex -= cells.length;
-    } else if (cellIndex < 0) {
-      cellIndex += cells.length;
-    }
-
-    if (boardValues) {
-      const row = Math.floor(cellIndex / columns);
-      const column = cellIndex % columns;
-      const symbol = boardValues[row][column];
-
-      if (symbol !== 0) {
-        adjustCellIndex(e, initial);
-      }
-    }
-    
-    cells[cellIndex].focus();
-  }
-
-  function handleKeydown(e, initial) {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      adjustCellIndex(e, initial);
-    } else if (e.key === 'Tab') {
-      e.preventDefault();
-      const message = document.querySelector('.message');
-      message.textContent = 'Use arrow keys please';
-
-      setTimeout(() => {
-        message.textContent = `${activePlayer.name}'s turn`;
-      }, 1500);
-    }
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if (activePlayer.name === '') {
-      return;
-    }
-
-    const currentFocus = document.activeElement;
-
-    if (currentFocus === document.body) {
-      handleKeydown(e, 'initial');
-    }
-  });
-  
-  cells.forEach((cell) => {
-    cell.addEventListener('keydown', handleKeydown);
-  });
-}
-
 function startGame(playerOneName, playerTwoName) {
-  const game = GameController(playerOneName, playerTwoName);
   const boardDiv = document.querySelector('.board');
   const board = game.getBoard();
-  const activePlayer = game.getActivePlayer();
-
+  playerOne.name = playerOneName;
+  playerTwo.name = playerTwoName;
   boardDiv.classList.add('display-board');
   boardDiv.addEventListener('click', game.getHumanMove);
 
-  if (activePlayer.name === 'Robot') {
+  if (playerOne.name === 'Robot') {
     game.getRobotMove();
   }
   
-  renderBoard(board, activePlayer);
-  moveWithArrowKey(activePlayer);
+  renderBoard(board, playerOne);
+  game.moveWithArrowKey();
 }
 
 function reloadPage() {
@@ -842,9 +869,9 @@ function prepareGame() {
   robotBtn.addEventListener('click', openDialog);
 
   document.addEventListener('keydown', (e) => {
-    const currentFocus = document.activeElement;
+    const activeElement = document.activeElement;
 
-    if (currentFocus === document.body) {
+    if (activeElement === document.body) {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         humanBtn.focus();
       }
@@ -876,4 +903,6 @@ function prepareGame() {
   });
 }
 
-prepareGame();
+const playerOne = createPlayer('X', true);
+const playerTwo = createPlayer('O', false);
+const game = gameController();
