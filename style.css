@@ -413,7 +413,7 @@ button {
 
 @media screen and (orientation: portrait) {
   .wrapper {
-    padding-bottom: 8rem;
+    padding-bottom: 6rem;
   }
 }
 
@@ -429,13 +429,13 @@ button {
   }
 }
 
-@media screen and (orientation: portrait) and (min-width: 24.01rem) and (max-width: 47.99rem) and (min-height: calc(50rem - 100px)) {
+@media screen and (orientation: portrait) and (min-width: 24.01rem) and (max-width: 47.99rem) and (min-height: calc(50rem - 80px)) {
   html {
     font-size: 8.5px;
   }
 }
 
-@media screen and (orientation: portrait) and (min-width: 24.01rem) and (max-width: 47.99rem) and (min-height: calc(54rem - 100px)) {
+@media screen and (orientation: portrait) and (min-width: 24.01rem) and (max-width: 47.99rem) and (min-height: calc(54rem - 80px)) {
   html {
     font-size: 9px;
   }
@@ -447,7 +447,7 @@ button {
   }
 }
 
-@media screen and (orientation: portrait) and (min-width: 48rem) and (min-height: calc(70rem - 100px)) {
+@media screen and (orientation: portrait) and (min-width: 48rem) and (min-height: calc(70rem - 80px)) {
   html {
     font-size: 11px;
   }
