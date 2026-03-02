@@ -13,18 +13,20 @@ function createGameBoard() {
 
   const getBoard = () => board;
   const getBoardValues = () => board.map((row) => row.map((cell) => cell.getValue()));
-  const putSymbol = (row, column, playerSymbol) => board[row][column].setValue(playerSymbol);
+  const putSymbol = (row, column, symbol) => board[row][column].setValue(symbol);
+  const resetBoard = () => board.map((row) => row.map((cell) => cell.resetValue()));
 
   return {
     getBoard,
     getBoardValues,
     putSymbol,
+    resetBoard,
   };
 }
 
 function createCell() {
   let value = 0;
-  const setValue = (playerSymbol) => value = playerSymbol;
+  const setValue = (symbol) => value = symbol;
   const getValue = () => value;
   const resetValue = () => value = 0;
 
@@ -46,7 +48,7 @@ function createPlayer(symbol, active) {
   };
 }
 
-function gameController() {
+function handleGame() {
   const board = createGameBoard();
   prepareGame();
 
@@ -96,8 +98,6 @@ function gameController() {
       }
     }
 
-    winDiagonally(symbol);
-
     function winHorizontally(symbol) {
       for (let i = 0; i < boardValues.length; i++) {
         const boardRow = boardValues[i]; 
@@ -118,10 +118,6 @@ function gameController() {
           }
         }
       }
-    }
-
-    if (coordinate.length !== 2) {
-      winHorizontally(symbol);
     }
     
     function winVertically(symbol) {
@@ -146,24 +142,30 @@ function gameController() {
         }
       }
     }
+
+    winDiagonally(symbol);
+
+    if (coordinate.length === 0) {
+      winHorizontally(symbol);
+    }
     
-    if (coordinate.length !== 2) {
+    if (coordinate.length === 0) {
       winVertically(symbol);
     }
     // Prevent opponent's victory diagonally.
-    if (coordinate.length !== 2) {
+    if (coordinate.length === 0) {
       winDiagonally(opponentSymbol);
     }
     // Prevent opponent's victory horizontally.
-    if (coordinate.length !== 2) {
+    if (coordinate.length === 0) {
       winHorizontally(opponentSymbol);
     }
     // Prevent opponent's victory vertically.
-    if (coordinate.length !== 2) {
+    if (coordinate.length === 0) {
       winVertically(opponentSymbol);
     }
     
-    if (coordinate.length !== 2) {
+    if (coordinate.length === 0) {
       const emptyCells = [];
 
       for (let i = 0; i < boardValues.length; i++) {
@@ -179,8 +181,8 @@ function gameController() {
       }
 
       const randomIndex = Math.floor(Math.random() * emptyCells.length);
-      const chosenCell = emptyCells[randomIndex];
-      coordinate = [chosenCell[0], chosenCell[1]];
+      const selectedCell = emptyCells[randomIndex];
+      coordinate = [selectedCell[0], selectedCell[1]];
     }
     
     setTimeout(() => {
@@ -199,7 +201,6 @@ function gameController() {
 
     let activePlayer = getActivePlayer();
     const symbol = activePlayer.symbol;
-    
     board.putSymbol(row, column, symbol);
     checkResult();
     
@@ -395,8 +396,6 @@ function gameController() {
 
       const playerOneWon = document.querySelector('.player-one-won');
       const playerTwoWon = document.querySelector('.player-two-won');
-      const quitBtn = document.querySelector('.quit-btn');
-      const retryBtn = document.querySelector('.retry-btn');
 
       if (result === playerOne.symbol) {
         playerOneWon.classList.add('visible-crown');
@@ -404,6 +403,8 @@ function gameController() {
         playerTwoWon.classList.add('visible-crown');
       }
       
+      const quitBtn = document.querySelector('.quit-btn');
+      const retryBtn = document.querySelector('.retry-btn');
       quitBtn.addEventListener('click', resetGame);
       retryBtn.addEventListener('click', resetGame);
 
@@ -432,8 +433,7 @@ function gameController() {
   }
 
   function resetGame(e) {
-    const gameBoard = board.getBoard();
-    gameBoard.map((row) => row.map((cell) => cell.resetValue()));
+    board.resetBoard();
     playerOne.active = true;
     playerTwo.active = false;
     playerOne.result = null;
@@ -444,7 +444,7 @@ function gameController() {
     if (e.target.classList.contains('retry-btn')) {
       const boardDiv = document.querySelector('.board');
       boardDiv.classList.add('display-board');
-      renderBoard(gameBoard, playerOne);
+      renderBoard(board.getBoard(), playerOne);
       moveWithArrowKey();
 
       if (playerOne.name === 'Robot') {
@@ -905,4 +905,4 @@ function prepareGame() {
 
 const playerOne = createPlayer('X', true);
 const playerTwo = createPlayer('O', false);
-const game = gameController();
+const game = handleGame();
