@@ -412,8 +412,8 @@ button {
 }
 
 @media screen and (orientation: portrait) {
-  .wrapper {
-    padding-bottom: 6rem;
+  .container {
+    padding-bottom: 8rem;
   }
 }
 
