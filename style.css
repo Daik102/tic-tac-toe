@@ -27,29 +27,11 @@ html {
 }
 
 body {
-  background-color: var(--background-theme);
-}
-
-a {
-  text-decoration: none;
-}
-
-button {
-  border: none;
-}
-
-.wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-}
-
-.title {
-  font-weight: 700;
-  font-size: 3rem;
-  color: var(--blue-theme);
-  text-shadow: 0.3rem 0.3rem var(--white-theme);
+  background-color: var(--background-theme);
 }
 
 .container {
@@ -63,6 +45,13 @@ button {
   background-color: var(--lightblue-theme);
   border-radius: 1.2rem;
   box-shadow: 0 2rem var(--blue-theme);
+}
+
+.title {
+  font-weight: 700;
+  font-size: 3rem;
+  color: var(--blue-theme);
+  text-shadow: 0.3rem 0.3rem var(--white-theme);
 }
 
 .message-board {
@@ -113,6 +102,7 @@ button {
   font-weight: 700;
   font-size: 2.2rem;
   background-color: var(--blue-theme);
+  border: none;
   cursor: pointer;
 }
 
@@ -261,10 +251,7 @@ button {
   margin-bottom: -0.2rem;
 }
 
-.player-one-won {
-  visibility: hidden;
-}
-
+.player-one-won,
 .player-two-won {
   visibility: hidden;
 }
@@ -351,6 +338,7 @@ button {
   font-size: 2rem;
   color: var(--white-theme);
   background-color: var(--blue-theme);
+  border: none;
   cursor: pointer;
 }
 
@@ -371,6 +359,7 @@ button {
   font-size: 4rem;
   font-family: sans-serif;
   background-color: var(--blue-theme);
+  border: none;
 }
 
 .player-one-cell {
@@ -404,99 +393,110 @@ button {
 .link {
   padding: 0 0.4rem;
   font-size: 1.6rem;
+  text-decoration: none;
   color: var(--blue-theme);
 }
 
 .link:hover {
   color: var(--background-theme);
 }
-
+/* For smartphones in portrait mode */
 @media screen and (orientation: portrait) {
-  .container {
-    padding-bottom: 8rem;
-  }
-}
-
-@media screen and (orientation: portrait) and (max-width: 20rem) {
   html {
-    font-size: 7px;
+    font-size: 7.75px;
   }
 }
 
-@media screen and (orientation: portrait) and (min-width: 20.01rem) and (max-width: 47.99rem) {
+@media screen and (orientation: portrait) and (min-width: 22.5em) {
   html {
-    font-size: 8px;
+    font-size: 8.75px;
   }
 }
 
-@media screen and (orientation: portrait) and (min-width: 24.01rem) and (max-width: 47.99rem) and (min-height: calc(50rem - 80px)) {
-  html {
-    font-size: 8.5px;
-  }
-}
-
-@media screen and (orientation: portrait) and (min-width: 24.01rem) and (max-width: 47.99rem) and (min-height: calc(54rem - 80px)) {
+@media screen and (orientation: portrait) and (min-width: 23.4em) {
   html {
     font-size: 9px;
   }
 }
 
-@media screen and (orientation: portrait) and (min-width: 48rem) {
+@media screen and (orientation: portrait) and (min-width: 24.3em) {
+  html {
+    font-size: 9.25px;
+  }
+}
+
+@media screen and (orientation: portrait) and (min-width: 25.75em) {
+  html {
+    font-size: 9.75px;
+  }
+}
+
+@media screen and (orientation: portrait) and (min-width: 26.75em) {
   html {
     font-size: 10px;
   }
 }
-
-@media screen and (orientation: portrait) and (min-width: 48rem) and (min-height: calc(70rem - 80px)) {
-  html {
-    font-size: 11px;
-  }
-}
-
-@media screen and (orientation: portrait) and (min-width: 56rem) {
+/* For tablets in portrait mode */
+@media screen and (orientation: portrait) and (min-width: 48em) {
   html {
     font-size: 12px;
   }
 }
-
-@media screen and (orientation: landscape) and (max-width: 41rem) {
+/* For smartphones in landscape mode */
+@media screen and (orientation: landscape) {
   html {
-    font-size: 5.5px;
+    font-size: 7.75px;
+  }
+
+  body {
+    height: auto;
+    margin: 4rem 0 6rem;
   }
 }
 
-@media screen and (orientation: landscape) and (min-width: 41.01rem) and (max-width: 47rem) {
+@media screen and (orientation: landscape) and (min-width: 41.6em) {
   html {
-    font-size: 6.5px;
+    font-size: 8.75px;
   }
 }
 
-@media screen and (orientation: landscape) and (min-width: 47.01rem) and (max-width: 53rem) {
+@media screen and (orientation: landscape) and (min-width: 46.25em) {
   html {
-    font-size: 7.5px;
+    font-size: 9px;
   }
 }
 
-@media screen and (orientation: landscape) and (min-width: 53.01rem) and (max-width: 59rem) {
+@media screen and (orientation: landscape) and (min-width: 50em) {
   html {
-    font-size: 8px;
+    font-size: 9.25px;
   }
 }
 
-@media screen and (orientation: landscape) and (min-width: 59.01rem) and (max-width: 64rem) {
+@media screen and (orientation: landscape) and (min-width: 52.7em) {
+  html {
+    font-size: 9.5px;
+  }
+}
+
+@media screen and (orientation: landscape) and (min-width: 55.75em) {
+  html {
+    font-size: 9.75px;
+  }
+}
+
+@media screen and (orientation: landscape) and (min-width: 58em) {
   html {
     font-size: 10px;
   }
 }
-
-@media screen and (orientation: landscape) and (min-width: 64.01rem) and (max-width: 74rem) {
-  html {
-    font-size: 11px;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 74.01rem) {
+/* For tablets in landscape mode, laptops, and desktops */
+@media screen and (orientation: landscape) and (min-width: 64em) {
   html {
     font-size: 12px;
+  }
+
+  body {
+    height: 100vh;
+    margin: 0;
   }
 }
