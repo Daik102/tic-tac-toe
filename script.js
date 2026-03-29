@@ -60,7 +60,7 @@ function handleGame() {
 
   const getHumanMove = (e) => {
     const activePlayer = getActivePlayer();
-    
+  
     if (activePlayer.name === 'Robot' || activePlayer.result !== null || !e.target.classList.contains('cell')) {
       return;
     }
@@ -203,18 +203,18 @@ function handleGame() {
     const symbol = activePlayer.symbol;
     board.putSymbol(row, column, symbol);
     checkResult();
-    
-    if (playerOne.active) {
-      playerOne.active = false;
-      playerTwo.active = true;
-    } else {
-      playerOne.active = true;
-      playerTwo.active = false;
-    }
 
     if (activePlayer.result !== null) {
       displayResult(activePlayer);
     } else {
+      if (playerOne.active) {
+        playerOne.active = false;
+        playerTwo.active = true;
+      } else {
+        playerOne.active = true;
+        playerTwo.active = false;
+      }
+
       activePlayer = getActivePlayer();
       renderBoard(board.getBoard(), activePlayer);
       moveWithArrowKey(board.getBoardValues());
