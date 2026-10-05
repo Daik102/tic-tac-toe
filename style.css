@@ -16,21 +16,22 @@
   --lightblue-theme: #aadeff;
   --lightblue-hover-theme: rgba(0, 230, 230, 0.25);
   --lightblue-dark-hover-theme: rgba(0, 151, 187, 0.85);
-  --black-theme: #222;
+  --black-theme: #333;
   --white-theme: #eff9ff;
-  --pink-theme: #ff82ff;
+  --pink-theme: #ff72ff;
   --gold-theme: #ffc800;
+  --transparent-theme: #0000;
 }
 
 html {
-  font-size: 10px;
+  font-size: 50%;
 }
 
 body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background-color: var(--background-theme);
 }
 
@@ -39,7 +40,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 36rem;
+  width: 100%;
+  max-width: 36rem;
   height: 40rem;
   padding: 2.4rem 0;
   background-color: var(--lightblue-theme);
@@ -55,15 +57,20 @@ body {
 }
 
 .message-board {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 24rem;
   margin: 2rem 0 1.2rem;
   padding: 0.6rem 1.2rem;
   font-size: 2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-color: var(--blue-theme);
 }
 
 .message {
-  text-align: center;
   color: var(--white-theme);
 }
 
@@ -101,7 +108,7 @@ body {
   padding: 0.8rem 0;
   font-weight: 700;
   font-size: 2.2rem;
-  background-color: var(--blue-theme);
+  background-color: var(--transparent-theme);
   border: none;
   cursor: pointer;
 }
@@ -145,6 +152,7 @@ body {
 }
 
 .dialog label {
+  margin-right: 0.2rem;
   font-size: 2rem;
   cursor: pointer;
 }
@@ -180,7 +188,6 @@ body {
 }
 
 .first-radio-row {
-  align-self: flex-start;
   margin-bottom: -0.8rem;
 }
 
@@ -214,7 +221,7 @@ body {
 .alert {
   display: none;
   position: absolute;
-  left: 12rem;
+  left: 16.6rem;
   gap: 0.4rem;
   font-size: 1.6rem;
   color: var(--white-theme);
@@ -224,18 +231,17 @@ body {
   top: 15.2rem;
 }
 
-.alert-blank-two,
-.alert-duplicate {
+.alert-blank-two {
   top: 24.4rem;
 }
 
-.alert-blank-name,
-.alert-robot {
-  top: 13.4rem;
+.alert-blank-name {
+  top: 13.2rem;
+  left: 15.6rem;
 }
 
 .alert svg {
-  width: 1.6rem;
+  width: 1.8rem;
   fill: var(--gold-theme);
 }
 
@@ -246,7 +252,7 @@ body {
 .crown-container {
   display: flex;
   justify-content: center;
-  gap: 11.2rem;
+  gap: 11rem;
   width: 100%;
   margin-bottom: -0.2rem;
 }
@@ -276,6 +282,7 @@ body {
 .name-row {
   gap: 3.2rem;
   margin-bottom: 0.4rem;
+  padding: 0 0.4rem;
 }
 
 .name-row p,
@@ -286,6 +293,9 @@ body {
 
 .name-row p {
   font-size: 2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .score-row p {
@@ -337,7 +347,7 @@ body {
   font-weight: 500;
   font-size: 2rem;
   color: var(--white-theme);
-  background-color: var(--blue-theme);
+  background-color: var(--transparent-theme);
   border: none;
   cursor: pointer;
 }
@@ -400,103 +410,17 @@ body {
 .link:hover {
   color: var(--background-theme);
 }
-/* For smartphones in portrait mode */
-@media screen and (orientation: portrait) {
+
+/* Middle and Large Smartphones */
+@media screen and (min-width: 24.25em) {
   html {
-    font-size: 7.75px;
+    font-size: 56.25%;
   }
 }
 
-@media screen and (orientation: portrait) and (min-width: 22.5em) {
+/* Tablets and Desktops */
+@media screen and (min-width: 48em) {
   html {
-    font-size: 8.75px;
-  }
-}
-
-@media screen and (orientation: portrait) and (min-width: 23.4em) {
-  html {
-    font-size: 9px;
-  }
-}
-
-@media screen and (orientation: portrait) and (min-width: 24.3em) {
-  html {
-    font-size: 9.25px;
-  }
-}
-
-@media screen and (orientation: portrait) and (min-width: 25.75em) {
-  html {
-    font-size: 9.75px;
-  }
-}
-
-@media screen and (orientation: portrait) and (min-width: 26.75em) {
-  html {
-    font-size: 10px;
-  }
-}
-/* For tablets in portrait mode */
-@media screen and (orientation: portrait) and (min-width: 48em) {
-  html {
-    font-size: 12px;
-  }
-}
-/* For smartphones in landscape mode */
-@media screen and (orientation: landscape) {
-  html {
-    font-size: 7.75px;
-  }
-
-  body {
-    height: auto;
-    margin: 4rem 0 6rem;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 41.6em) {
-  html {
-    font-size: 8.75px;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 46.25em) {
-  html {
-    font-size: 9px;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 50em) {
-  html {
-    font-size: 9.25px;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 52.7em) {
-  html {
-    font-size: 9.5px;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 55.75em) {
-  html {
-    font-size: 9.75px;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 58em) {
-  html {
-    font-size: 10px;
-  }
-}
-/* For tablets in landscape mode, laptops, and desktops */
-@media screen and (orientation: landscape) and (min-width: 64em) {
-  html {
-    font-size: 12px;
-  }
-
-  body {
-    height: 100vh;
-    margin: 0;
+    font-size: 68.75%;
   }
 }
