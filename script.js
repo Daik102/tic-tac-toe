@@ -639,7 +639,7 @@ function reloadPage() {
     </div>
   `;
 
-  message.textContent = 'Select Game Mode';
+  message.textContent = 'Select Game';
   boardDiv.innerHTML = titlePageHTML;
   prepareGame();
 }
@@ -650,35 +650,23 @@ function enterName(e) {
     const playerTwoName = document.getElementById('player-two-name');
     const alertBlankOne = document.querySelector('.alert-blank-one');
     const alertBlankTwo = document.querySelector('.alert-blank-two');
-    const alertDuplicate = document.querySelector('.alert-duplicate');
 
     if (playerOneName.value === '') {
       alertBlankTwo.classList.remove('on-alert');
-      alertDuplicate.classList.remove('on-alert');
       alertBlankOne.classList.add('on-alert');
     } else if (playerTwoName.value === '') {
       alertBlankOne.classList.remove('on-alert');
-      alertDuplicate.classList.remove('on-alert');
       alertBlankTwo.classList.add('on-alert');
-    } else if (playerOneName.value === playerTwoName.value) {
-      alertBlankOne.classList.remove('on-alert');
-      alertBlankTwo.classList.remove('on-alert');
-      alertDuplicate.classList.add('on-alert');
     } else {
       startGame(playerOneName.value, playerTwoName.value);
     }
   } else if (e.target.classList.contains('start-btn-for-robot')) {
     const playerName = document.getElementById('player-name');
     const alertBlankName = document.querySelector('.alert-blank-name');
-    const alertRobot = document.querySelector('.alert-robot');
     const playerFirst = document.getElementById('player-first');
 
     if (playerName.value === '') {
-      alertRobot.classList.remove('on-alert');
       alertBlankName.classList.add('on-alert');
-    } else if (playerName.value.toLowerCase() === 'robot') {
-      alertBlankName.classList.remove('on-alert');
-      alertRobot.classList.add('on-alert');
     } else {
       if (playerFirst.checked) {
         startGame(playerName.value, 'Robot');
@@ -699,23 +687,19 @@ function openDialog(e) {
         <form>
           <p>
             <label for="player-one-name" class="player-one-label">Player 1: </label>
-            <input type="text" id="player-one-name" maxlength="5">
+            <input type="text" id="player-one-name" maxlength="8">
           </p>
           <div class="alert-blank-one alert">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M13,13V7H11V13H13M13,17V15H11V17H13Z" /></svg>
-            Please fill out here
+            Fill out here
           </div>
           <p>
             <label for="player-two-name" class="player-two-label">Player 2: </label>
-            <input type="text" id="player-two-name" maxlength="5">
+            <input type="text" id="player-two-name" maxlength="8">
           </p>
           <div class="alert-blank-two alert">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M13,13V7H11V13H13M13,17V15H11V17H13Z" /></svg>
-            Please fill out here
-          </div>
-          <div class="alert-duplicate alert">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M13,13V7H11V13H13M13,17V15H11V17H13Z" /></svg>
-            It's the same name
+            Fill out here
           </div>
           <div class="btn-container">
             <button type="button" class="back-btn">Back</button>
@@ -725,7 +709,7 @@ function openDialog(e) {
       </div>
     `;
 
-    message.textContent = 'Enter the names';
+    message.textContent = 'Enter names';
     boardDiv.innerHTML = dialogHumanHTML;
 
     const playerOneName = document.getElementById('player-one-name');
@@ -774,15 +758,11 @@ function openDialog(e) {
         <form>
           <p class="name-container">
             <label for="player-name" class="player-label">Name: </label>
-            <input type="text" id="player-name" maxlength="5">
+            <input type="text" id="player-name" maxlength="8">
           </p>
           <div class="alert-blank-name alert">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M13,13V7H11V13H13M13,17V15H11V17H13Z" /></svg>
-            Please fill out here
-          </div>
-          <div class="alert-robot alert">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M13,13V7H11V13H13M13,17V15H11V17H13Z" /></svg>
-            You are not a robot!
+            Fill out here
           </div>
           <p class="first-radio-row">
             <input type="radio" id="player-first" name="play-order" value="player-first" checked>
@@ -800,7 +780,7 @@ function openDialog(e) {
       </div>
     `;
 
-    message.textContent = 'Enter your name';
+    message.textContent = 'Enter name';
     boardDiv.innerHTML = dialogRobotHTML;
 
     const playerName = document.getElementById('player-name');
