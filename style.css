@@ -7,7 +7,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Play-Bold, Arial, Helvetica, sans-serif;
 }
 
 :root {
@@ -25,6 +24,12 @@
 
 html {
   font-size: 50%;
+  font-family: Play-Bold, Arial, Helvetica, sans-serif;
+}
+
+input,
+button {
+  font-family: inherit;
 }
 
 body {
@@ -32,6 +37,8 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100svh;
+  padding: 4rem 0 6rem;
   background-color: var(--background-theme);
 }
 
