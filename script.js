@@ -72,6 +72,36 @@ function handleGame() {
     handleMove(coordinate);
   }
 
+  function getSquares(boardValues) {
+    const squares = [];
+
+    for (let i = 0; i < boardValues.length; i++) {
+      const row = boardValues[i];
+
+      for (let j = 0; j < row.length; j++) {
+        const square = row[j];
+        squares.push(square);
+      }
+    }
+
+    return squares;
+  }
+
+  function getLines() {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    return lines;
+  }
+
   const getRobotMove = () => { 
     const boardValues = board.getBoardValues();
     const activePlayer = getActivePlayer();
@@ -82,97 +112,44 @@ function handleGame() {
       opponentSymbol = playerTwo.symbol;
     }
 
+    const squares = getSquares(boardValues);
+    const lines = getLines();
+    let robotMove = null;
+
+    function calculateRobotMove(symbol) {
+      for (let i = 0; i < lines.length; i++) {
+        const [a, b, c] = lines[i];
+
+        if (squares[a] === symbol && squares[a] === squares[b] && squares[c] === 0) {
+          robotMove = c;
+        } else if (squares[a] === symbol && squares[a] === squares[c] && squares[b] === 0) {
+          robotMove = b;
+        } else if (squares[b] === symbol && squares[b] === squares[c] && squares[a] === 0) {
+          robotMove = a;
+        }
+      }
+    }
+
+    calculateRobotMove(symbol);
+
+    if (robotMove === null) {
+      calculateRobotMove(opponentSymbol);
+    }
+
     let coordinate = [];
 
-    function winDiagonally(symbol) {
-      if (boardValues[0][0] === symbol && boardValues[1][1] === symbol && boardValues[2][2] === 0) {
-        coordinate = [2, 2];
-      } else if (boardValues[0][0] === symbol && boardValues[2][2] === symbol && boardValues[1][1] === 0 || boardValues[0][2] === symbol && boardValues[2][0] === symbol && boardValues[1][1] === 0) {
-        coordinate = [1, 1];
-      } else if (boardValues[1][1] === symbol && boardValues[2][2] === symbol && boardValues[0][0] === 0) {
-        coordinate = [0, 0];
-      } else if (boardValues[0][2] === symbol && boardValues[1][1] === symbol && boardValues[2][0] === 0) {
-        coordinate = [2, 0];
-      } else if (boardValues[2][0] === symbol && boardValues[1][1] === symbol && boardValues[0][2] === 0) {
-        coordinate = [0, 2];
-      }
-    }
-
-    function winHorizontally(symbol) {
-      for (let i = 0; i < boardValues.length; i++) {
-        const boardRow = boardValues[i]; 
-        let symbolCounter = 0;
-        let columnIndex = null;
-
-        for (let j = 0; j < boardRow.length; j++) {
-          const cell = boardRow[j];
-
-          if (cell === symbol) {
-            symbolCounter += 1;
-          } else if (cell === 0) {
-            columnIndex = j;
-          }
-
-          if (symbolCounter === 2 && columnIndex !== null) {
-            coordinate = [i, columnIndex];
-          }
-        }
-      }
-    }
-    
-    function winVertically(symbol) {
-      const boardRow = boardValues[0];
-
-      for (let i = 0; i < boardRow.length; i++) {
-        let symbolCounter = 0;
-        let rowIndex = null;
-
-        for (let j = 0; j < boardValues.length; j++) {
-          const cell = boardValues[j][i];
-
-          if (cell === symbol) {
-            symbolCounter += 1;
-          } else if (cell === 0) {
-            rowIndex = j;
-          }
-
-          if (symbolCounter === 2 && rowIndex !== null) {
-            coordinate = [rowIndex, i];
-          }
-        }
-      }
-    }
-
-    winDiagonally(symbol);
-
-    if (coordinate.length === 0) {
-      winHorizontally(symbol);
-    }
-    
-    if (coordinate.length === 0) {
-      winVertically(symbol);
-    }
-    // Prevent opponent's victory diagonally.
-    if (coordinate.length === 0) {
-      winDiagonally(opponentSymbol);
-    }
-    // Prevent opponent's victory horizontally.
-    if (coordinate.length === 0) {
-      winHorizontally(opponentSymbol);
-    }
-    // Prevent opponent's victory vertically.
-    if (coordinate.length === 0) {
-      winVertically(opponentSymbol);
-    }
-    
-    if (coordinate.length === 0) {
+    if (robotMove !== null) {
+      const row = Math.floor(robotMove / 3);
+      const column = robotMove % 3;
+      coordinate = [row, column];
+    } else {
       const emptyCells = [];
 
       for (let i = 0; i < boardValues.length; i++) {
-        const boardRow = boardValues[i];
+        const row = boardValues[i];
 
-        for (let j = 0; j < boardRow.length; j++) {
-          const cell = boardRow[j];
+        for (let j = 0; j < row.length; j++) {
+          const cell = row[j];
 
           if (cell === 0) {
             emptyCells.push([i, j]);
@@ -181,8 +158,7 @@ function handleGame() {
       }
 
       const randomIndex = Math.floor(Math.random() * emptyCells.length);
-      const selectedCell = emptyCells[randomIndex];
-      coordinate = [selectedCell[0], selectedCell[1]];
+      coordinate = emptyCells[randomIndex];
     }
     
     setTimeout(() => {
@@ -228,112 +204,29 @@ function handleGame() {
   function checkResult() {
     const boardValues = board.getBoardValues();
     const activePlayer = getActivePlayer();
-    const symbol = activePlayer.symbol;
     let result = activePlayer.result;
     let pattern = activePlayer.pattern;
-    // Check the winner diagonally.
-    if (boardValues[0][2] === symbol && boardValues[1][1] === symbol && boardValues[2][0] === symbol) {
-      result = symbol;
-      pattern = [2, 4, 6];
-
-      if (boardValues[0][0] === symbol && boardValues[1][1] === symbol && boardValues[2][2] === symbol) {
-        pattern = [0, 2, 4, 6, 8];
-      }
-    } else if (boardValues[0][0] === symbol && boardValues[1][1] === symbol && boardValues[2][2] === symbol) {
-      result = symbol;
-      pattern = [0, 4, 8];
-    }
-    // Check the winner horizontally.
-    if (!result) {
-      for (let i = 0; i < boardValues.length; i++) {
-        const boardValuesRow = boardValues[i];
-        let symbolCounter = 0;
-
-        for (let j = 0; j < boardValuesRow.length; j++) {
-          if (boardValuesRow[j] === symbol) {
-            symbolCounter += 1;
-
-            if (symbolCounter === 3) {
-              result = symbol;
-
-              if (i === 0) {
-                pattern = [0, 1, 2];
-
-                if (boardValues[1][0] === symbol && boardValues[2][0] === symbol) {
-                  pattern = [0, 1, 2, 3, 6];
-                } else if (boardValues[1][1] === symbol && boardValues[2][1] === symbol) {
-                  pattern = [0, 1, 2, 4, 7];
-                } else if (boardValues[1][2] === symbol && boardValues[2][2] === symbol) {
-                  pattern = [0, 1, 2, 5, 8];
-                }
-              } else if (i === 1) {
-                pattern = [3, 4, 5];
-
-                if (boardValues[0][0] === symbol && boardValues[2][0] === symbol) {
-                  pattern = [0, 3, 4, 5, 6];
-                } else if (boardValues[0][1] === symbol && boardValues[2][1] === symbol) {
-                  pattern = [1, 3, 4, 5, 7];
-                } else if (boardValues[0][2] === symbol && boardValues[2][2] === symbol) {
-                  pattern = [2, 3, 4, 5, 8];
-                }
-              } else {
-                pattern = [6, 7, 8];
-
-                if (boardValues[0][0] === symbol && boardValues[1][0] === symbol) {
-                  pattern = [0, 3, 6, 7, 8];
-                } else if (boardValues[0][1] === symbol && boardValues[1][1] === symbol) {
-                  pattern = [1, 4, 6, 7, 8];
-                } else if (boardValues[0][2] === symbol && boardValues[1][2] === symbol) {
-                  pattern = [2, 5, 6, 7, 8];
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    // Check the winner vertically.
-    if (!result) {
-      const boardValuesRow = boardValues[0];
-
-      for (let i = 0; i < boardValuesRow.length; i++) {
-        let symbolCounter = 0;
-
-        for (let j = 0; j < boardValues.length; j++) {
-          if (boardValues[j][i] === symbol) {
-            symbolCounter += 1;
-
-            if (symbolCounter === 3) {
-              result = symbol;
-
-              if (i === 0) {
-                pattern = [0, 3, 6];
-              } else if (i === 1) {
-                pattern = [1, 4, 7];
-              } else {
-                pattern = [2, 5, 8];
-              }
-            }
-          }
-        }
-      }
-    }
-    // Check if the game is draw.
-    if (!result) {
-      let occupiedCells = 0;
+    const squares = getSquares(boardValues);
+    const lines = getLines();
     
-      for (let i = 0; i < boardValues.length; i++) {
-        const boardValuesRow = boardValues[i];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
 
-        for (let j = 0; j < boardValuesRow.length; j++) {
-          if (boardValuesRow[j] !== 0) {
-            occupiedCells += 1;
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        pattern.push(a, b, c);
+        result = squares[a];
+      }
+    }
 
-            if (occupiedCells === 9) {
-              result = 'draw';
-            }
-          }
-        }
+    if (pattern.length > 3) {
+      pattern = [...new Set(pattern)];
+    }
+
+    if (!result) {
+      const emptySquare = squares.includes(0);
+      
+      if (!emptySquare) {
+        result = 'draw';
       }
     }
     
